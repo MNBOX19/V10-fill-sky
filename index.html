@@ -339,25 +339,35 @@
             },
 
             play: function(url) {
-                if(this.url === url && this.video && !this.video.paused) return;
                 var isRetry = (this.url === url);
+                
+                if(isRetry && this.video && !this.video.paused && !this.isBuffering) return;
+                
                 this.hardStop(isRetry); 
-                this.url = url; this.stallCount = 0; this.retryCount = 0;
-                this.showBuffer('CONECTANDO...');
+                this.url = url; 
+                
+                if(!isRetry) {
+                    this.stallCount = 0; 
+                    this.retryCount = 0;
+                }
+                
+                this.showBuffer(isRetry ? 'RECONECTANDO (' + this.retryCount + ')...' : 'CONECTANDO...');
                 document.getElementById('pause-layer').style.display = 'none';
                 this.startMonitor();
                 
                 if(!this.video) return;
 
                 if (App.currentMode === 'live' && Hls.isSupported()) {
-                    this.hls = new Hls({
-                        maxBufferLength: 8,             
-                        maxMaxBufferLength: 10,         
-                        maxBufferSize: 10 * 1024 * 1024,
-                        backBufferLength: 0,            
-                        enableWorker: false,            
-                        liveDurationIntersection: true
-                    });
+                    if(!this.hls) {
+                        this.hls = new Hls({
+                            maxBufferLength: 8,             
+                            maxMaxBufferLength: 10,         
+                            maxBufferSize: 10 * 1024 * 1024,
+                            backBufferLength: 0,            
+                            enableWorker: false,            
+                            liveDurationIntersection: true
+                        });
+                    }
 
                     this.hls.loadSource(url);
                     this.hls.attachMedia(this.video);
@@ -370,8 +380,12 @@
                         if (data.fatal) {
                             switch (data.type) {
                                 case Hls.ErrorTypes.NETWORK_ERROR:
-                                    PlayerEngine.showBuffer('RECONECTANDO...');
-                                    PlayerEngine.hls.startLoad();
+                                    PlayerEngine.retryCount++;
+                                    PlayerEngine.showBuffer('RECONECTANDO (' + PlayerEngine.retryCount + ')...');
+                                    PlayerEngine.hls.stopLoad();
+                                    setTimeout(function() {
+                                        if(PlayerEngine.hls) PlayerEngine.hls.startLoad();
+                                    }, 3000);
                                     break;
                                 case Hls.ErrorTypes.MEDIA_ERROR:
                                     PlayerEngine.hls.recoverMediaError();
@@ -428,9 +442,20 @@
                 if (this.retryCount < limit) {
                     this.retryCount++;
                     this.showBuffer('RECONECTANDO (' + this.retryCount + ')...');
-                    this.recycleVideo();
-                    var delay = 1000; if(this.retryCount > 5) delay = 3000;
-                    setTimeout(function() { PlayerEngine.play(PlayerEngine.url); }, delay);
+                    
+                    if (isLive && this.hls) {
+                        this.hls.stopLoad();
+                        setTimeout(function() { 
+                            if(PlayerEngine.hls) {
+                                PlayerEngine.hls.startLoad(); 
+                                safePlay(PlayerEngine.video);
+                            }
+                        }, 3000);
+                    } else {
+                        this.recycleVideo();
+                        var delay = 1000; if(this.retryCount > 5) delay = 3000;
+                        setTimeout(function() { PlayerEngine.play(PlayerEngine.url); }, delay);
+                    }
                 } else { this.hardStop(); }
             },
 
@@ -442,8 +467,10 @@
             
             hardStop: function(isRetry) { 
                 this.stopMonitor(); 
-                this.recycleVideo();
-                if(!isRetry) { this.url = null; this.hideBuffer(); }
+                if(!isRetry) {
+                    this.recycleVideo();
+                    this.url = null; this.hideBuffer(); 
+                }
             }
         };
 
@@ -520,7 +547,7 @@
                     var rD = { mode: App.currentMode, id: App.playingId, name: document.getElementById('meta-desc').innerText };
                     localStorage.setItem('rc_nuclear_resume', JSON.stringify(rD));
                 }
-                PlayerEngine.hardStop(); 
+                PlayerEngine.hardStop(false); 
                 localStorage.removeItem('rc_session_start'); 
                 localStorage.removeItem('rc_refresh_interval'); 
                 setTimeout(function() { location.reload(true); }, 500); 
@@ -585,7 +612,7 @@
                     } else { App.setScr(0); document.getElementById('msg-login').innerText = App.i18n[App.cfg.lang].err_auth; localStorage.clear(); }
                 });
             },
-            logout: function() { PlayerEngine.hardStop(); localStorage.clear(); location.reload(); },
+            logout: function() { PlayerEngine.hardStop(false); localStorage.clear(); location.reload(); },
 
             setScr: function(n) {
                 var layers = document.querySelectorAll('.layer'); for(var i=0; i<layers.length; i++) { layers[i].classList.add('hide'); }
@@ -596,7 +623,7 @@
             },
 
             openSettings: function() { this.setScr(3); this.idx = 0; this.updateFocus(); requestNativeFullscreen(); },
-            closeSettings: function() { App.openMode(); },
+            closeSettings: function() { App.openMode('live'); },
 
             countGlobal: function() {
                 if (App.globalData && App.validCategories !== null) {
@@ -616,7 +643,7 @@
             },
 
             openMode: function() {
-                App.currentMode = 'live'; PlayerEngine.hardStop(); this.resetInfo(); requestNativeFullscreen();
+                App.currentMode = 'live'; PlayerEngine.hardStop(false); this.resetInfo(); requestNativeFullscreen();
                 this.playingId = null; this.page = 0; this.validCategories = null; this.setScr(2);
                 var t = App.i18n[App.cfg.lang]; document.getElementById('cat-list').innerHTML = ''; document.getElementById('item-list').innerHTML = ''; document.getElementById('search').value = '';
                 var countEl = document.getElementById('item-count'); if(countEl) countEl.innerText = t.tot_pre + "...";
@@ -747,7 +774,6 @@
             playStream: function(item) {
                 var id = item.stream_id || item.id; 
                 
-                // Forçamos a extensão .m3u8 para utilizar sempre o motor HLS.js
                 var url = this.creds.h+"/live/"+this.creds.u+"/"+this.creds.p+"/"+id+".m3u8";
                 
                 this.playingId = id; 
@@ -785,7 +811,8 @@
                 if(rawT.length < 2) return; 
                 var tStr = App.removeAccents(rawT);
                 document.getElementById('item-list').innerHTML = '<div style="padding:20px; text-align:center; color: #FF2800; font-size: 30px;"><i class="fas fa-circle-notch fa-spin"></i></div>';
-                App.req(App.creds.h+"/player_api.php?username="+App.creds.u+"&password="+App.creds.p+"&action=get_live_streams", function(d){ 
+                var actionStrm = App.currentMode === 'live' ? 'get_live_streams' : (App.currentMode === 'movie' ? 'get_vod_streams' : 'get_series');
+                App.req(App.creds.h+"/player_api.php?username="+App.creds.u+"&password="+App.creds.p+"&action="+actionStrm, function(d){ 
                     if(d && d!=='ERR_NET') { 
                         var res = []; var maxResults = 100; var junk = ['adulto', 'adults', 'xxx', 'sex', 'porn', '18+', '+18', 'sexy', 'hot', 'hardcore', 'erotic', 'seduction', 'playboy', 'venus', 'sextreme', 'private', 'manutencao', 'teste', 'off'];
                         for(var i=0; i<d.length; i++) { 
@@ -970,7 +997,7 @@
             if(k===406||k===66||k===275) { e.preventDefault(); App.openSettings(); } 
         });
 
-        function forceDisconnect() { PlayerEngine.hardStop(); }
+        function forceDisconnect() { PlayerEngine.hardStop(false); }
         window.addEventListener('beforeunload', forceDisconnect); window.addEventListener('unload', forceDisconnect); window.addEventListener('pagehide', forceDisconnect);
         document.addEventListener('visibilitychange', function() { if (document.visibilityState === 'hidden') { forceDisconnect(); } });
     </script>
