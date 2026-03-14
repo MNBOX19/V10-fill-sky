@@ -196,14 +196,11 @@
             <div class="config-row" style="margin-top: 30px;"><div id="s0" class="toggle-btn focusable" style="border-color: #333; background: #111; cursor: default;">OPÇÕES</div></div>
             <div class="config-row">
                 <div id="s1" class="toggle-btn focusable" onclick="App.toggleLang()"><span id="lbl-set-lang">IDIOMA:</span> <span id="lbl-lang" style="color:#fff">🇧🇷 PT</span></div>
-            </div>
-            <div class="config-row">
                 <div id="s2" class="toggle-btn focusable" onclick="App.toggleCfg('filter')"><span id="lbl-set-filter">XXX:</span> <span id="lbl-filter" style="color:#fff">NÃO</span></div>
-                <div id="s3" class="toggle-btn focusable"><span id="lbl-set-format">FMT:</span> <span id="lbl-format" style="color:#00C851">HLS NAT</span></div>
             </div>
             
-            <button id="s4" class="btn focusable" onclick="App.closeSettings()" style="background: #333; color: #fff; margin-top: 20px;">VOLTAR</button>
-            <button id="s5" class="btn btn-logout focusable" onclick="App.logout()">SAIR / DESLOGAR</button>
+            <button id="s3" class="btn focusable" onclick="App.closeSettings()" style="background: #333; color: #fff; margin-top: 20px;">VOLTAR</button>
+            <button id="s4" class="btn btn-logout focusable" onclick="App.logout()">SAIR / DESLOGAR</button>
         </div>
     </div>
 
@@ -452,7 +449,7 @@
 
         var App = {
             validCategories: null, scr: 0, zone: 0, idx: 0, lastCatIdx: 0, creds: {}, fullData: [], globalData: null, playingId: null,
-            cfg: { filter: false, format: 'm3u8_native', lang: 'pt' }, userInfo: null, lastEnter: 0, touchTimer: null,
+            cfg: { filter: false, lang: 'pt' }, userInfo: null, lastEnter: 0, touchTimer: null,
             seriesDataCache: null, lastSeriesIdx: 0, sessionStartTime: null, refreshInterval: 2 * 60 * 60 * 1000, refreshTimer: null,
             lastTap: 0, tapTimer: null, pageSize: 100, mobileRenderedPages: 1,
 
@@ -465,9 +462,9 @@
             },
 
             i18n: {
-                'en': { ph_dns: 'DNS URL', ph_user: 'USERNAME', ph_pass: 'PASSWORD', btn_login: 'CONNECT', load_init: 'STARTING...', load_auth: 'LOGGING IN...', load_net: 'NETWORK...', err_net: 'Connection Failed', err_auth: 'Invalid Login', set_title: 'MY ACCOUNT', set_u: 'USER:', set_e: 'EXP:', set_c: 'CONN:', set_d: 'DATE:', set_opt: 'OPTIONS', set_filter: 'BLOCK:', set_format: 'FMT:', set_lang: 'LANG:', set_back: 'BACK', yes: 'YES', no: 'NO', fmt_def: 'DEF', cat_title: 'CHANNELS', cat_fav: '⭐ FAV', search_ph: 'SEARCH...', empty: 'Empty', loading: 'LOADING...', loading_ep: 'EPISODES...', no_ep: 'No episodes.', osd_play: '▶ PLAY', osd_pause: '⏸ PAUSE', osd_lost: 'NO SIGNAL', key_fs: 'FULLSCREEN (R)', key_top: 'TOP (G)', key_search: 'FIND (Y)', key_menu: 'CONFIG (B)', tot_chan: 'CH', tot_mov: 'MOV', tot_ser: 'SER', tot_pre: 'TOTAL: ', def_movie: 'Movie', def_ep: 'Episode', unlimited: 'Unlimited', unknown: 'Unknown', flag: '🇺🇸 EN', btn_out: 'LOGOUT' },
-                'pt': { ph_dns: 'URL DNS', ph_user: 'USUÁRIO', ph_pass: 'SENHA', btn_login: 'CONECTAR', load_init: 'INICIANDO...', load_auth: 'AUTENTICANDO...', load_net: 'REDE...', err_net: 'Falha Conexão', err_auth: 'Login Inválido', set_title: 'MINHA CONTA', set_u: 'USUÁRIO:', set_e: 'VENCE:', set_c: 'TELAS:', set_d: 'CRIADO:', set_opt: 'OPÇÕES', set_filter: 'XXX:', set_format: 'FMT:', set_lang: 'IDIOMA:', set_back: 'VOLTAR', yes: 'SIM', no: 'NÃO', fmt_def: 'PADRÃO', cat_title: 'CANAIS', cat_fav: '⭐ FAVORITOS', search_ph: 'BUSCAR...', empty: 'Vazio', loading: 'CARREGANDO...', loading_ep: 'EPISÓDIOS...', no_ep: 'Sem episódios.', osd_play: '▶ TOCA', osd_pause: '⏸ PAUSA', osd_lost: 'SEM SINAL', key_fs: 'TELA CHEIA (R)', key_top: 'TOPO (G)', key_search: 'BUSCA (Y)', key_menu: 'CONFIG (B)', tot_chan: 'CANAIS', tot_mov: 'FILMES', tot_ser: 'SÉRIES', tot_pre: 'TOTAL: ', def_movie: 'Filme', def_ep: 'Episódio', unlimited: 'Ilimitado', unknown: 'Desconhecido', flag: '🇧🇷 PT', btn_out: 'SAIR / DESLOGAR' },
-                'es': { ph_dns: 'URL DNS', ph_user: 'USUARIO', ph_pass: 'CLAVE', btn_login: 'CONECTAR', load_init: 'INICIANDO...', load_auth: 'AUTENTICANDO...', load_net: 'RED...', err_net: 'Fallo Conexión', err_auth: 'Login Inválido', set_title: 'MI CUENTA', set_u: 'USUARIO:', set_e: 'VENCE:', set_c: 'PANTALLAS:', set_d: 'CREADO:', set_opt: 'OPCIONES', set_filter: 'XXX:', set_format: 'FMT:', set_lang: 'IDIOMA:', set_back: 'VOLVER', yes: 'SÍ', no: 'NO', fmt_def: 'DEFECTO', cat_title: 'CANALES', cat_fav: '⭐ FAVORITOS', search_ph: 'BUSCAR...', empty: 'Vacío', loading: 'CARGANDO...', loading_ep: 'EPISODIOS...', no_ep: 'No hay episodios.', osd_play: '▶ PLAY', osd_pause: '⏸ PAUSA', osd_lost: 'SIN SEÑAL', key_fs: 'PANTALLA COMPLETA (R)', key_top: 'TOP (G)', key_search: 'BUSCA (Y)', key_menu: 'CONFIG (B)', tot_chan: 'CANALES', tot_mov: 'PELIS', tot_ser: 'SERIES', tot_pre: 'TOTAL: ', def_movie: 'Película', def_ep: 'Episodio', unlimited: 'Ilimitado', unknown: 'Desconocido', flag: '🇪🇸 ES', btn_out: 'SALIR' }
+                'en': { ph_dns: 'DNS URL', ph_user: 'USERNAME', ph_pass: 'PASSWORD', btn_login: 'CONNECT', load_init: 'STARTING...', load_auth: 'LOGGING IN...', load_net: 'NETWORK...', err_net: 'Connection Failed', err_auth: 'Invalid Login', set_title: 'MY ACCOUNT', set_u: 'USER:', set_e: 'EXP:', set_c: 'CONN:', set_d: 'DATE:', set_opt: 'OPTIONS', set_filter: 'BLOCK:', set_lang: 'LANG:', set_back: 'BACK', yes: 'YES', no: 'NO', cat_title: 'CHANNELS', cat_fav: '⭐ FAV', search_ph: 'SEARCH...', empty: 'Empty', loading: 'LOADING...', loading_ep: 'EPISODES...', no_ep: 'No episodes.', osd_play: '▶ PLAY', osd_pause: '⏸ PAUSE', osd_lost: 'NO SIGNAL', key_fs: 'FULLSCREEN (R)', key_top: 'TOP (G)', key_search: 'FIND (Y)', key_menu: 'CONFIG (B)', tot_chan: 'CH', tot_mov: 'MOV', tot_ser: 'SER', tot_pre: 'TOTAL: ', def_movie: 'Movie', def_ep: 'Episode', unlimited: 'Unlimited', unknown: 'Unknown', flag: '🇺🇸 EN', btn_out: 'LOGOUT' },
+                'pt': { ph_dns: 'URL DNS', ph_user: 'USUÁRIO', ph_pass: 'SENHA', btn_login: 'CONECTAR', load_init: 'INICIANDO...', load_auth: 'AUTENTICANDO...', load_net: 'REDE...', err_net: 'Falha Conexão', err_auth: 'Login Inválido', set_title: 'MINHA CONTA', set_u: 'USUÁRIO:', set_e: 'VENCE:', set_c: 'TELAS:', set_d: 'CRIADO:', set_opt: 'OPÇÕES', set_filter: 'XXX:', set_lang: 'IDIOMA:', set_back: 'VOLTAR', yes: 'SIM', no: 'NÃO', cat_title: 'CANAIS', cat_fav: '⭐ FAVORITOS', search_ph: 'BUSCAR...', empty: 'Vazio', loading: 'CARREGANDO...', loading_ep: 'EPISÓDIOS...', no_ep: 'Sem episódios.', osd_play: '▶ TOCA', osd_pause: '⏸ PAUSA', osd_lost: 'SEM SINAL', key_fs: 'TELA CHEIA (R)', key_top: 'TOPO (G)', key_search: 'BUSCA (Y)', key_menu: 'CONFIG (B)', tot_chan: 'CANAIS', tot_mov: 'FILMES', tot_ser: 'SÉRIES', tot_pre: 'TOTAL: ', def_movie: 'Filme', def_ep: 'Episódio', unlimited: 'Ilimitado', unknown: 'Desconhecido', flag: '🇧🇷 PT', btn_out: 'SAIR / DESLOGAR' },
+                'es': { ph_dns: 'URL DNS', ph_user: 'USUARIO', ph_pass: 'CLAVE', btn_login: 'CONECTAR', load_init: 'INICIANDO...', load_auth: 'AUTENTICANDO...', load_net: 'RED...', err_net: 'Fallo Conexión', err_auth: 'Login Inválido', set_title: 'MI CUENTA', set_u: 'USUARIO:', set_e: 'VENCE:', set_c: 'PANTALLAS:', set_d: 'CREADO:', set_opt: 'OPCIONES', set_filter: 'XXX:', set_lang: 'IDIOMA:', set_back: 'VOLVER', yes: 'SÍ', no: 'NO', cat_title: 'CANALES', cat_fav: '⭐ FAVORITOS', search_ph: 'BUSCAR...', empty: 'Vacío', loading: 'CARGANDO...', loading_ep: 'EPISODIOS...', no_ep: 'No hay episodios.', osd_play: '▶ PLAY', osd_pause: '⏸ PAUSA', osd_lost: 'SIN SEÑAL', key_fs: 'PANTALLA COMPLETA (R)', key_top: 'TOP (G)', key_search: 'BUSCA (Y)', key_menu: 'CONFIG (B)', tot_chan: 'CANALES', tot_mov: 'PELIS', tot_ser: 'SERIES', tot_pre: 'TOTAL: ', def_movie: 'Película', def_ep: 'Episodio', unlimited: 'Ilimitado', unknown: 'Desconocido', flag: '🇪🇸 ES', btn_out: 'SALIR' }
             },
 
             applyLang: function() {
@@ -475,7 +472,7 @@
                 document.getElementById('i0').placeholder = t.ph_dns; document.getElementById('i1').placeholder = t.ph_user; document.getElementById('i2').placeholder = t.ph_pass; document.getElementById('i3').innerText = t.btn_login;
                 document.getElementById('set-title-txt').innerHTML = '<i class="fas fa-user-shield" style="margin-right:10px; color: #FF2800;"></i>' + t.set_title;
                 document.getElementById('lbl-set-u').innerText = t.set_u; document.getElementById('lbl-set-e').innerText = t.set_e; document.getElementById('lbl-set-c').innerText = t.set_c; document.getElementById('lbl-set-d').innerText = t.set_d;
-                document.getElementById('s0').innerText = t.set_opt; document.getElementById('lbl-set-filter').innerText = t.set_filter; document.getElementById('lbl-set-lang').innerText = t.set_lang; document.getElementById('s4').innerText = t.set_back; document.getElementById('s5').innerText = t.btn_out;
+                document.getElementById('s0').innerText = t.set_opt; document.getElementById('lbl-set-filter').innerText = t.set_filter; document.getElementById('lbl-set-lang').innerText = t.set_lang; document.getElementById('s3').innerText = t.set_back; document.getElementById('s4').innerText = t.btn_out;
                 
                 document.getElementById('cat-title-txt').innerText = t.cat_title; document.getElementById('search').placeholder = t.search_ph;
                 document.getElementById('key-fs').innerHTML = '<div class="dot" style="background-color:#FF0000; box-shadow: 0 0 10px #FF0000;"></div> ' + t.key_fs; 
@@ -599,7 +596,7 @@
             },
 
             openSettings: function() { this.setScr(3); this.idx = 0; this.updateFocus(); requestNativeFullscreen(); },
-            closeSettings: function() { App.openMode('live'); },
+            closeSettings: function() { App.openMode(); },
 
             countGlobal: function() {
                 if (App.globalData && App.validCategories !== null) {
@@ -748,10 +745,10 @@
             },
 
             playStream: function(item) {
-                var id = item.stream_id || item.id; var url = ""; var t = App.i18n[App.cfg.lang];
+                var id = item.stream_id || item.id; 
                 
                 // Forçamos a extensão .m3u8 para utilizar sempre o motor HLS.js
-                url = this.creds.h+"/live/"+this.creds.u+"/"+this.creds.p+"/"+id+".m3u8";
+                var url = this.creds.h+"/live/"+this.creds.u+"/"+this.creds.p+"/"+id+".m3u8";
                 
                 this.playingId = id; 
                 document.getElementById('meta-desc').innerText = item.name || item.title; 
@@ -788,8 +785,7 @@
                 if(rawT.length < 2) return; 
                 var tStr = App.removeAccents(rawT);
                 document.getElementById('item-list').innerHTML = '<div style="padding:20px; text-align:center; color: #FF2800; font-size: 30px;"><i class="fas fa-circle-notch fa-spin"></i></div>';
-                var actionStrm = App.currentMode === 'live' ? 'get_live_streams' : (App.currentMode === 'movie' ? 'get_vod_streams' : 'get_series');
-                App.req(App.creds.h+"/player_api.php?username="+App.creds.u+"&password="+App.creds.p+"&action="+actionStrm, function(d){ 
+                App.req(App.creds.h+"/player_api.php?username="+App.creds.u+"&password="+App.creds.p+"&action=get_live_streams", function(d){ 
                     if(d && d!=='ERR_NET') { 
                         var res = []; var maxResults = 100; var junk = ['adulto', 'adults', 'xxx', 'sex', 'porn', '18+', '+18', 'sexy', 'hot', 'hardcore', 'erotic', 'seduction', 'playboy', 'venus', 'sextreme', 'private', 'manutencao', 'teste', 'off'];
                         for(var i=0; i<d.length; i++) { 
@@ -814,23 +810,12 @@
                 var timeDiff = now - (App.lastTap || 0);
                 App.lastTap = now;
 
-                var rect = document.getElementById('vid-box').getBoundingClientRect();
-                var clientX = e.clientX;
-                if(e.changedTouches && e.changedTouches.length > 0) clientX = e.changedTouches[0].clientX;
-                var x = (clientX || rect.width / 2) - rect.left;
-                var width = rect.width;
-
                 if (timeDiff < 300 && timeDiff > 0) {
                     clearTimeout(App.tapTimer);
-                    if (App.currentMode !== 'live') {
-                        if (x < width * 0.33) { App.seek(-15); } 
-                        else if (x > width * 0.66) { App.seek(15); } 
-                        else { App.toggleFull(); }
-                    } else { App.toggleFull(); }
+                    App.toggleFull(); 
                 } else {
                     App.tapTimer = setTimeout(function() {
-                        if (App.currentMode !== 'live') { App.togglePlay(); } 
-                        else { App.toggleFull(); }
+                        App.toggleFull(); 
                     }, 300);
                 }
             },
@@ -895,20 +880,16 @@
             },
             
             move: function(d) {
-                // Tela de Login
                 if(this.scr===0) { if(d===1 && this.idx < 3) this.idx++; if(d===0 && this.idx > 0) this.idx--; }
                 
-                // Tela de Configurações
                 if(this.scr===3) { 
                     if(this.idx === 0) { if(d===1) this.idx = 1; } 
-                    else if(this.idx === 1) { if(d===1) this.idx = 2; else if(d===0) this.idx = 0; }
-                    else if(this.idx === 2) { if(d===1) this.idx = 3; else if(d===0) this.idx = 1; }
-                    else if(this.idx === 3) { if(d===1) this.idx = 4; else if(d===0) this.idx = 2; }
-                    else if(this.idx === 4) { if(d===1) this.idx = 5; else if(d===0) this.idx = 3; }
-                    else if(this.idx === 5) { if(d===0) this.idx = 4; }
+                    else if(this.idx === 1) { if(d===3) this.idx = 2; else if(d===1) this.idx = 3; else if(d===0) this.idx = 0; }
+                    else if(this.idx === 2) { if(d===2) this.idx = 1; else if(d===1) this.idx = 3; else if(d===0) this.idx = 0; }
+                    else if(this.idx === 3) { if(d===1) this.idx = 4; else if(d===0) this.idx = 1; }
+                    else if(this.idx === 4) { if(d===0) this.idx = 3; }
                 }
 
-                // Tela de Conteúdo (Canais)
                 if(this.scr===2) {
                     if(this.zone===3) { if(d===2) { this.zone=2; this.syncFocusToPlaying(); this.updateFocus(); } return; }
                     if(this.zone===0) { var max = document.getElementById('cat-list').children.length-1; if(d===1 && this.idx<max) this.idx++; if(d===0 && this.idx>0) this.idx--; if(d===3 && App.fullData.length>0) { this.zone=2; this.idx=0; } }
@@ -944,8 +925,8 @@
                 if(this.scr===3) { 
                     if(this.idx === 1) this.toggleLang(); 
                     if(this.idx === 2) this.toggleCfg('filter'); 
-                    if(this.idx === 4) this.closeSettings(); 
-                    if(this.idx === 5) this.logout(); 
+                    if(this.idx === 3) this.closeSettings(); 
+                    if(this.idx === 4) this.logout(); 
                 }
                 if(this.scr===2) {
                     if(this.zone===0) this.catClick(this.idx); if(this.zone===1) this.doSearch();
